@@ -1,0 +1,30 @@
+// {
+//   "extends": "@repo/typescript-config/base.json",
+//   "compilerOptions": {
+//     "types": ["node"],
+//     "module": "ESNext",
+//     "moduleResolution": "bundler",
+//     "declaration": false,
+//     "composite": false,
+//     "noEmit": true
+//   },
+//   "include": ["src"]
+// }
+
+
+
+
+
+{
+  "extends": "@repo/typescript-config/base.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "declaration": false,
+    "composite": false,
+    "noEmit": true
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
+}
