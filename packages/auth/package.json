@@ -12,6 +12,10 @@
     "./client": {
       "types": "./src/client.ts",
       "import": "./src/client.ts"
+    },
+      "./server": {
+      "types": "./src/server.ts",
+      "import": "./src/server.ts"
     }
   },
   "scripts": {
