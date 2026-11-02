@@ -17,9 +17,11 @@
   "dependencies": {
     "@neondatabase/serverless": "^1.2.0",
     "@paralleldrive/cuid2": "^3.3.0",
+    "@repo/shared": "workspace:*",
     "drizzle-orm": "0.45.4",
-    "postgres": "^4.0.0",
-    "@repo/shared": "workspace:*"
+    "generate": "^0.14.0",
+    "migrate": "^2.1.0",
+    "postgres": "^4.0.0"
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:^",

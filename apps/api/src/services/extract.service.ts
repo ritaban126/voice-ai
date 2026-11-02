@@ -69,7 +69,7 @@ const toAsciiDigits = (s: string) =>
   s.replace(/[\u0966-\u096F\u09E6-\u09EF\u0BE6-\u0BEF]/g, (ch) => {
     const c = ch.charCodeAt(0);
     return String(c - (c >= 0xbe6 ? 0xbe6 : c >= 0x9e6 ? 0x9e6 : 0x966));
-  });
+});
 
 function ruleBasedExtract(text: string, role: Role): VoiceIntent {
   const ascii = toAsciiDigits(text);

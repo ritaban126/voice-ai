@@ -16,14 +16,18 @@
 
 
 {
-  "extends": "@repo/typescript-config/base.json",
   "compilerOptions": {
-    "types": ["node"],
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM"],
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "declaration": false,
-    "composite": false,
-    "noEmit": true
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "types": ["node"]
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"]

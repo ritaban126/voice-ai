@@ -85,26 +85,78 @@ export async function findCandidates(
 }
 
 // Saves the next `count` best workers (not yet shown for this request) as PROPOSED, with rank 1,2,3...
+// export async function proposeWorkers(request: JobRequest, count = 3) {
+//   const existing = await db.select({ workerId: matches.workerId, rank: matches.rank }).from(matches).where(eq(matches.requestId, request.id));
+//   const window = request.windowStart && request.windowEnd ? { start: request.windowStart, end: request.windowEnd } : null;
+//   const top = (await findCandidates(request, { exclude: existing.map((e) => e.workerId), window })).slice(0, count);
+//   if (top.length === 0) return [];
+
+//   let rank = Math.max(0, ...existing.map((e) => e.rank));
+//   const rows = await db
+//     .insert(matches)
+//     .values(
+//       top.map((c) => {
+//         rank += 1;
+//         const price = previewPrice(c.worker, request); // price shown on the card
+//         return {
+//           requestId: request.id,
+//           workerId: c.worker.id,
+//           rank,
+//           score: c.score,
+//           distanceKm: round1(c.distanceKm),
+//           status: 'PROPOSED' as const,
+//           priceModel: price.priceModel,
+//           quotedAmount: price.quotedAmount ?? null,
+//           visitCharge: price.visitCharge ?? null,
+//         };
+//       }),
+//     )
+//     .returning();
+//   await db.update(jobRequests).set({ status: 'PROPOSED' }).where(eq(jobRequests.id, request.id));
+//   return rows;
+// }
+
 export async function proposeWorkers(request: JobRequest, count = 3) {
-  const existing = await db.select({ workerId: matches.workerId, rank: matches.rank }).from(matches).where(eq(matches.requestId, request.id));
-  const window = request.windowStart && request.windowEnd ? { start: request.windowStart, end: request.windowEnd } : null;
-  const top = (await findCandidates(request, { exclude: existing.map((e) => e.workerId), window })).slice(0, count);
+  // Get existing matches for this request
+  const existing = await db
+    .select({
+      workerId: matches.workerId,
+    })
+    .from(matches)
+    .where(eq(matches.requestId, request.id));
+
+  // Exclude already matched workers
+  const window =
+    request.windowStart && request.windowEnd
+      ? {
+          start: request.windowStart,
+          end: request.windowEnd,
+        }
+      : null;
+
+  // Find top candidates
+  const top = (
+    await findCandidates(request, {
+      exclude: existing.map((e) => e.workerId),
+      window,
+    })
+  ).slice(0, count);
+
   if (top.length === 0) return [];
 
-  let rank = Math.max(0, ...existing.map((e) => e.rank));
+  // Insert proposed workers
   const rows = await db
     .insert(matches)
     .values(
       top.map((c) => {
-        rank += 1;
-        const price = previewPrice(c.worker, request); // price shown on the card
+        const price = previewPrice(c.worker, request);
+
         return {
           requestId: request.id,
           workerId: c.worker.id,
-          rank,
           score: c.score,
           distanceKm: round1(c.distanceKm),
-          status: 'PROPOSED' as const,
+          status: 'SENT' as const,
           priceModel: price.priceModel,
           quotedAmount: price.quotedAmount ?? null,
           visitCharge: price.visitCharge ?? null,
@@ -112,9 +164,16 @@ export async function proposeWorkers(request: JobRequest, count = 3) {
       }),
     )
     .returning();
-  await db.update(jobRequests).set({ status: 'PROPOSED' }).where(eq(jobRequests.id, request.id));
+
+  // Update job request status
+  await db
+    .update(jobRequests)
+    .set({ status: 'PROPOSED' })
+    .where(eq(jobRequests.id, request.id));
+
   return rows;
 }
+
 
 // "Nobody now, but N people are free tomorrow morning"
 export async function countAvailableInWindow(request: JobRequest, window: TimeWindow): Promise<number> {
